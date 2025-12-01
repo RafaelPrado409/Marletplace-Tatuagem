@@ -105,7 +105,108 @@ Ambas as aplicações funcionam desacopladas, conectadas via HTTP.
 - **Tailwind CSS**
 - **Radix UI (opcional)**
 
+
 ---
+
+## 🐳 Subindo um container PostgreSQL com Docker
+
+O backend deste projeto utiliza **PostgreSQL**, e a maneira mais simples de rodar o banco localmente é utilizando Docker.  
+Abaixo estão todas as instruções completas para configurar o ambiente rapidamente.
+
+---
+
+### 🔧 1. Crie um arquivo `.env` dentro da pasta `backend`:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/marketplace"
+JWT_SECRET="seu-segredo-aqui"
+PORT=3000
+
+```
+🐳 2. Inicie o container PostgreSQL com Docker:
+
+```
+docker run \
+  --name marketplace-db \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=marketplace \
+  -p 5432:5432 \
+  -v marketplace_data:/var/lib/postgresql/data \
+  -d postgres:14
+```
+
+O que esse comando faz?
+
+--name marketplace-db → Nome do container
+
+POSTGRES_USER / POSTGRES_PASSWORD → Credenciais padrão
+
+POSTGRES_DB → Nome da base criada automaticamente
+
+-p 5432:5432 → Expõe o banco na porta local
+
+-v marketplace_data:/var/lib/postgresql/data → Cria volume persistente
+
+postgres:14 → Utiliza a imagem oficial do PostgreSQL
+
+🔄 3. Execute as migrações do Prisma:
+````
+cd backend
+npx prisma migrate dev
+````
+Isso criará todas as tabelas definidas no schema.prisma.
+
+🧪 4. Teste a conexão com o banco
+npx prisma studio
+
+
+Ou:
+
+npx prisma db pull
+
+
+Se funcionar, sua conexão está configurada corretamente.
+
+▶ 5. Suba o backend da aplicação
+npm run start:dev
+
+
+A API estará acessível em:
+
+http://localhost:3000
+
+🗄 6. Comandos úteis para o container
+
+Parar o container:
+````
+docker stop marketplace-db
+````
+
+Iniciar novamente:
+````
+docker start marketplace-db
+````
+````
+Remover container:
+
+docker rm -f marketplace-db
+````
+
+Remover volume persistente:
+````
+docker volume rm marketplace_data
+````
+
+
+✔ Ambiente pronto!
+
+Agora o banco já está rodando e configurado para uso com o backend NestJS + Prisma.
+Basta iniciar o frontend normalmente:
+````
+cd frontend
+npm run dev
+````
 
 # 🗄 Modelagem do Banco (Prisma)
 
